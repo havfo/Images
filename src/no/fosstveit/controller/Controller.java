@@ -12,12 +12,14 @@ import java.io.File;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.JSlider;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import no.fosstveit.model.Model;
 import no.fosstveit.ui.ImageFileFilter;
 import no.fosstveit.ui.PreviewPanel;
 import no.fosstveit.util.ImageLoadWorker;
-import no.fosstveit.util.Utilities;
 import no.fosstveit.view.View;
 
 /**
@@ -43,6 +45,7 @@ public class Controller {
 		view.addAboutListener(new AboutListener());
 		view.addImagePanelListener(new ImagePanelListener());
 		view.addImagePanelMouseListener(new ImagePanelMouseListener());
+		view.addImageScaleSliderListener(new ImageScaleSliderListener());
 	}
 
 	private void exitImages() {
@@ -92,8 +95,8 @@ public class Controller {
 	class ImagePanelListener implements ComponentListener {
 		@Override
 		public void componentResized(ComponentEvent e) {
-			model.scaleImage(view.getImagePanel().getWidth(), view
-					.getImagePanel().getHeight());
+//			model.scaleImage(view.getImagePanel().getWidth(), view
+//					.getImagePanel().getHeight());
 		}
 
 		@Override
@@ -131,6 +134,20 @@ public class Controller {
 		public void mouseReleased(MouseEvent e) {
 		}
 	}
+	
+	class ImageScaleSliderListener implements ChangeListener {
+		@Override
+		public void stateChanged(ChangeEvent arg) {
+			JSlider source = (JSlider) arg.getSource();
+		    if (!source.getValueIsAdjusting()) {
+		        int scale = (int) source.getValue();
+		        
+		        double realScale = (double) scale / 10.0;
+		        
+		        model.setScale(realScale);
+		    }
+		}
+	}
 
 	class NewImagesListener implements ActionListener {
 		@Override
@@ -144,10 +161,9 @@ public class Controller {
 			newImageChooser.addPropertyChangeListener(preview);
 
 			if (newImageChooser.showOpenDialog(view) == JFileChooser.APPROVE_OPTION) {
-				File tmp = newImageChooser.getSelectedFile();
-				model.setImage(Utilities.loadJPEGFile(tmp));
-				model.scaleImage(view.getImagePanel().getWidth(), view
-						.getImagePanel().getHeight());
+				File file = newImageChooser.getSelectedFile();
+				ilw = new ImageLoadWorker(model, file, view.getImagePanel());
+				ilw.execute();
 			}
 		}
 	}

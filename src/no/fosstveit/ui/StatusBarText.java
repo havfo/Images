@@ -32,7 +32,7 @@ public class StatusBarText extends JLabel {
 					Thread.sleep(Constants.STATUS_BAR_TIME);
 					setText("");
 				} catch (InterruptedException e) {
-					System.out.println("Sleep interrupted. Probably new status.");
+					// System.out.println("Sleep interrupted. Probably new status.");
 				}
 			}
 		});

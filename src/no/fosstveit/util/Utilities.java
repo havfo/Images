@@ -3,9 +3,7 @@ package no.fosstveit.util;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.Transparency;
-import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorConvertOp;
 import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
@@ -23,36 +21,24 @@ import javax.imageio.ImageIO;
 
 public class Utilities {
 
-	public static BufferedImage loadJPEGFile(File file) {
+	public static BufferedImage loadImage(File file) {
 		BufferedImage image;
 		try {
 			image = ImageIO.read(file);
 
-			BufferedImage rgbImage = new BufferedImage(image.getWidth(), image
-					.getHeight(), BufferedImage.TYPE_3BYTE_BGR);
-			if (image != null) {
-				int colorSpaceType = image.getColorModel().getColorSpace()
-						.getType();
-				if (colorSpaceType == ColorSpace.TYPE_CMYK) {
-					ColorConvertOp op = new ColorConvertOp(null);
-					op.filter(image, rgbImage);
-
-					return rgbImage;
-				}
-			}
 			return image;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 		return null;
 	}
-	
-	public static BufferedImage loadImage(String image) {
+
+	public static BufferedImage loadImage(String url) {
 		BufferedImage img = null;
 		try {
-			URL url = new URL(image);
-			URLConnection uc = url.openConnection();
+			URL u = new URL(url);
+			URLConnection uc = u.openConnection();
 			uc.addRequestProperty(
 					"User-Agent",
 					"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/535.7 (KHTML, like Gecko) Chrome/16.0.912.77 Safari/535.7");
@@ -98,10 +84,9 @@ public class Utilities {
 
 		return average;
 	}
-	
-	public static BufferedImage scaleImage(BufferedImage img,
-			int targetWidth, int targetHeight, Object hint,
-			boolean progressiveBilinear) {
+
+	public static BufferedImage scaleImage(BufferedImage img, int targetWidth,
+			int targetHeight, Object hint, boolean progressiveBilinear) {
 		int type = (img.getTransparency() == Transparency.OPAQUE) ? BufferedImage.TYPE_INT_RGB
 				: BufferedImage.TYPE_INT_ARGB;
 		BufferedImage ret = (BufferedImage) img;
@@ -110,7 +95,7 @@ public class Utilities {
 		int w, h;
 		int prevW = ret.getWidth();
 		int prevH = ret.getHeight();
-		if (progressiveBilinear) {
+		if (progressiveBilinear && (img.getWidth() > targetWidth && img.getHeight() > targetHeight)) {
 			w = img.getWidth();
 			h = img.getHeight();
 		} else {
